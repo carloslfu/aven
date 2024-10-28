@@ -33,8 +33,8 @@ importers:
         specifier: ~2
         version: 2.1.0
       ai:
-        specifier: ^3.4.20
-        version: 3.4.20(react@18.3.1)(sswr@2.1.0(svelte@4.2.19))(svelte@4.2.19)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8)
+        specifier: ^3.4.21
+        version: 3.4.21(react@18.3.1)(sswr@2.1.0(svelte@4.2.19))(svelte@4.2.19)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -692,8 +692,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  ai@3.4.20:
-    resolution: {integrity: sha512-UnU7VoIzwx0sql5W+39oLazmiovNRqX+AUkvLwuzlRWrp0O9BjqA/ZlvdmfBxhBPZMruzvL659q8ET38l04fUw==}
+  ai@3.4.21:
+    resolution: {integrity: sha512-enkB4JK7E6M4YUF+OYURt5fiWPgJJwXA7XSp9vEZcnFPU4x/iyxwt8kb//4S3sIapvxjmgKNJ0cMLkWyAKyzMA==}
     engines: {node: '>=18'}
     peerDependencies:
       openai: ^4.42.0
@@ -1970,7 +1970,7 @@ snapshots:
 
   acorn@8.13.0: {}
 
-  ai@3.4.20(react@18.3.1)(sswr@2.1.0(svelte@4.2.19))(svelte@4.2.19)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8):
+  ai@3.4.21(react@18.3.1)(sswr@2.1.0(svelte@4.2.19))(svelte@4.2.19)(vue@3.5.12(typescript@5.6.3))(zod@3.23.8):
     dependencies:
       '@ai-sdk/provider': 0.0.26
       '@ai-sdk/provider-utils': 1.0.22(zod@3.23.8)
