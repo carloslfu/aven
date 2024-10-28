@@ -318,21 +318,15 @@ function App() {
       },
       // map to tool result content for LLM consumption:
       experimental_toToolResultContent(result) {
-        console.log("experimental_toToolResultContent", result);
         if (!result) {
           return [];
         }
 
-        const _result =
-          typeof result === "string"
-            ? [{ type: "text", text: result }]
-            : "type" in result && result.type === "image"
-            ? [{ type: "image", data: result.data, mimeType: "image/png" }]
-            : [];
-
-        console.log("experimental_toToolResultContent _result", _result);
-
-        return _result as any;
+        return typeof result === "string"
+          ? [{ type: "text", text: result }]
+          : "type" in result && result.type === "image"
+          ? [{ type: "image", data: result.data, mimeType: "image/png" }]
+          : [];
       },
     });
 
