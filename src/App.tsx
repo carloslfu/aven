@@ -16,7 +16,6 @@ import {
 } from "ai";
 import { Message } from "ai/react";
 
-import { anthropicTools } from "./lib/anthropic-tools";
 import {
   getCursorPosition,
   getMonitors,
@@ -32,11 +31,6 @@ import { mainPrompt } from "./prompts";
 import { useGlobalStore } from "./globalStore";
 import { cn } from "./lib/utils";
 import { scaleCoordinates, ScalingSource } from "./scaling";
-
-type ToolObjectResponseWorkaround = {
-  __type__: "object-response";
-  object: unknown;
-};
 
 function ClaudeAPIKey() {
   const [claudeToken, setClaudeToken] = useState<string>("");
@@ -174,67 +168,16 @@ function App() {
           signal: abortControllerRef.current?.signal,
         };
 
-        /**
-         * Workaround for the AI SDK serialization of the tool responses
-         */
-        if (
-          input === "https://api.anthropic.com/v1/messages" &&
-          init?.method === "POST" &&
-          init?.body
-        ) {
-          const deserializedBody = JSON.parse(String(init?.body));
-
-          // console.log("deserializedBody");
-
-          if (
-            deserializedBody.messages &&
-            deserializedBody.messages.length > 0
-          ) {
-            // console.log("deserializedBody.messages");
-
-            for (const message of deserializedBody.messages) {
-              if (
-                message.role === "user" &&
-                Array.isArray(message.content) &&
-                message.content.length > 0
-              ) {
-                // console.log("message.content");
-
-                for (const part of message.content) {
-                  if (
-                    part.type === "tool_result" &&
-                    part.content &&
-                    typeof part.content === "string"
-                  ) {
-                    // console.log("tool result", part);
-
-                    const toolResult = JSON.parse(part.content);
-
-                    if (toolResult.__type__ === "object-response") {
-                      // replace the tool result with the non-serialized version
-                      part.content = toolResult.object;
-
-                      // console.log("toolResult.object", toolResult.object);
-                    }
-                  }
-                }
-              }
-            }
-
-            newInit.body = JSON.stringify(deserializedBody);
-          }
-        }
-
         // append request to file
-        // const request = { input, init: newInit };
-        // await writeFile(
-        //   "./requests.json",
-        //   new TextEncoder().encode(JSON.stringify(request) + "\n\n\n"),
-        //   {
-        //     append: true,
-        //     baseDir: BaseDirectory.AppData,
-        //   }
-        // );
+        const request = { input, init };
+        await writeFile(
+          "./requests.json",
+          new TextEncoder().encode(JSON.stringify(request) + "\n\n\n"),
+          {
+            append: true,
+            baseDir: BaseDirectory.AppData,
+          }
+        );
 
         return fetch(input, newInit);
       },
@@ -244,7 +187,7 @@ function App() {
 
     console.log("selectedMonitor", selectedMonitor);
 
-    const computerTool = anthropicTools.computer_20241022({
+    const computerTool = anthropic.tools.computer_20241022({
       displayWidthPx: selectedMonitor?.width ?? 1920,
       displayHeightPx: selectedMonitor?.height ?? 1080,
       execute: async ({ action, coordinate, text }) => {
@@ -359,21 +302,11 @@ function App() {
             }
           );
 
-          // Tool result with images: https://docs.anthropic.com/en/docs/build-with-claude/tool-use#example-of-tool-result-with-images
-          // it goes with a workaround for the AI SDK serialization of the tool responses
+          // Tool result with images: https://sdk.vercel.ai/providers/ai-sdk-providers/anthropic#computer-tool
           return {
-            __type__: "object-response",
-            object: [
-              {
-                type: "image",
-                source: {
-                  type: "base64",
-                  media_type: "image/png",
-                  data: base64,
-                },
-              },
-            ],
-          } satisfies ToolObjectResponseWorkaround;
+            type: "image",
+            data: base64,
+          };
         } else if (action === "cursor_position") {
           const position = await getCursorPosition(selectedMonitorId);
           return position;
@@ -382,6 +315,18 @@ function App() {
         } else if (action === "key" && text) {
           await pressKey(text);
         }
+      },
+      // map to tool result content for LLM consumption:
+      experimental_toToolResultContent(result) {
+        if (!result) {
+          return [];
+        }
+
+        return typeof result === "string"
+          ? [{ type: "text", text: result }]
+          : "type" in result && result.type === "image"
+          ? [{ type: "image", data: result.data, mimeType: "image/png" }]
+          : [];
       },
     });
 
