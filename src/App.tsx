@@ -169,15 +169,15 @@ function App() {
         };
 
         // append request to file
-        const request = { input, init };
-        await writeFile(
-          "./requests.json",
-          new TextEncoder().encode(JSON.stringify(request) + "\n\n\n"),
-          {
-            append: true,
-            baseDir: BaseDirectory.AppData,
-          }
-        );
+        // const request = { input, init };
+        // await writeFile(
+        //   "./requests.json",
+        //   new TextEncoder().encode(JSON.stringify(request) + "\n\n\n"),
+        //   {
+        //     append: true,
+        //     baseDir: BaseDirectory.AppData,
+        //   }
+        // );
 
         return fetch(input, newInit);
       },
@@ -345,7 +345,7 @@ function App() {
         tools: {
           computer: computerTool,
         },
-        maxSteps: 30,
+        maxSteps: 20,
         experimental_continueSteps: true,
       });
 
